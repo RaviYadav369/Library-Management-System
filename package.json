@@ -1,0 +1,23 @@
+{
+  "name": "library-management-system",
+  "version": "1.0.0",
+  "description": "This is a library management system",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RaviYadav369/Library-Management-System.git"
+  },
+  "author": "Ravi Yadav",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RaviYadav369/Library-Management-System/issues"
+  },
+  "homepage": "https://github.com/RaviYadav369/Library-Management-System#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "nodemon": "^2.0.19"
+  }
+}
