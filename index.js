@@ -4,13 +4,13 @@ const usersRouter = require("./routes/users");
 const booksRouter = require("./routes/books");
 
 const app = express();
+app.use(express.json());
 
 const port = 8081;
 
 app.use('/users',usersRouter);
 app.use('/books',booksRouter);
 
-app.use(express.json());
 
 
 app.get("*", (req, res) => {
