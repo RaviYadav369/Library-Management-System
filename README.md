@@ -17,7 +17,7 @@ GET: Get all list of users ✅
 
 GET: Get a user by id ✅
 PUT: Update a user by id ✅
-DELETE: Delete a user by id (check if he/she still has an issued book) (is there any fine to be paid)
+DELETE: Delete a user by id (check if he/she still has an issued book) (is there any fine to be paid)✅
 
 ## /users/subscription-details/{id}
 
@@ -43,7 +43,7 @@ GET: Get all issued books ✅
 
 ## /books/issued/withFine
 
-GET: Get all issued books with fine
+GET: Get all issued books with fine✅
 
 # Subscription Types
 

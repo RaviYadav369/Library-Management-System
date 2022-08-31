@@ -72,7 +72,6 @@ router.get("/issued/by-user", (req, res) => {
 //Data : author, name, genre, price, publisher, id
 
 router.post("/", (req, res) => {
-    
   const { data } = req.body;
 
   if (!data) {
@@ -99,33 +98,103 @@ router.post("/", (req, res) => {
 // Routes: /books/:id
 // Method:PUT
 //Update the books
-router.put('/:id',(req,res)=>{
-const {id} = req.params;
-const {data} = req.body;
-const book = books.find((each) => each.id === id)
+router.put("/:id", (req, res) => {
+  const { id } = req.params;
+  const { data } = req.body;
+  const book = books.find((each) => each.id === id);
 
-if(!book){
+  if (!book) {
     return res.status(400).json({
-        success:false,
-        message:"Book with this id is not found"
+      success: false,
+      message: "Book with this id is not found",
     });
-}
+  }
 
-const updateBooks = books.map((each) => {
-if(each.id === id){
-    return { ...each , ...data};
-}
-return each;
+  const updateBooks = books.map((each) => {
+    if (each.id === id) {
+      return { ...each, ...data };
+    }
+    return each;
+  });
+
+  return res.status(200).json({
+    success: true,
+    data: updateBooks,
+  });
 });
 
-return res.status(200).json({
-    success:true,
-    data:updateBooks,
-})
+// Routes: /books/bookwithfine
+// Method:GET
+//getting all issued books which have fine
 
+router.get("/issuesbook/withfine", (req, res) => {
+  const userWithFine = users.map((each) => {
+    const getDateInDays = (data = "") => {
+      let date;
+      if (data === "") {
+        //Current Date
+        date = new Date();
+      } else {
+        //Date depend on data
+        date = new Date(data);
+      }
+      let days = Math.floor(date / (1000 * 60 * 60 * 24));
+      return days;
+    };
+
+    const subscriptionType = (date) => {
+      if (each.subscriptionType === "Basic") {
+        date = date + 90;
+      } else if (each.subscriptionType === "Standard") {
+        date = date + 180;
+      } else if (each.subscriptionType === "Premium") {
+        date = date + 365;
+      }
+      return date;
+    };
+
+    //Subscription Expiration
+    //January 1, 1970 UTC
+    let returnDate = getDateInDays(each.returnDate);
+    let currentDate = getDateInDays();
+    let subscriptionDate = getDateInDays(each.subscriptionDate);
+    let subscriptionExpiration = subscriptionType(subscriptionDate);
+
+    const data = {
+      ...each,
+      subscriptionExpiration: subscriptionExpiration < currentDate,
+      daysLeftforExpiration:
+        subscriptionExpiration <= currentDate
+          ? 0
+          : subscriptionExpiration - currentDate,
+      fine:
+        returnDate < currentDate
+          ? subscriptionExpiration <= currentDate
+            ? 200
+            : 100
+          : 0,
+    };
+    return data;
+  });
+  
+  // console.log(userWithFine);
+
+  const userIssuedBook = userWithFine.filter((each) => {
+    if (each.issuedBook) return each;
+  });
+
+  const booksWithFine = [];
+  userIssuedBook.forEach((each) => {
+    if (each.fine > 0) {
+      const book = books.find((book) => book.id === each.issuedBook);
+      booksWithFine.push(book);
+    }
+  });
+
+  res.status(200).json({
+    success: true,
+    data: booksWithFine,
+  });
 });
-
-
-
 
 module.exports = router;

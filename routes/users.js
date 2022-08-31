@@ -107,13 +107,71 @@ router.delete('/:id',(req,res)=>{
         message:"User is Not Found for delete"
       });
     }
+    
+   
+     const getDateInDays = (data = "") => {
+        let date;
+        if (data === "") {
+          //Current Date
+          date = new Date();
+        } else {
+          //Date depend on data
+          date = new Date(data);
+        }
+        let days = Math.floor(date / (1000 * 60 * 60 * 24));
+        return days;
+      };
   
-    const index = users.indexOf(user);
-    users.splice(index,1);
-    res.status(202).json({
-      success:true,
-      data:users
-    });
+      const subscriptionType = (date) => {
+        if (user.subscriptionType === "Basic") {
+          date = date + 90;
+        } else if (user.subscriptionType === "Standard") {
+          date = date + 180;
+        } else if (user.subscriptionType === "Premium") {
+          date = date + 365;
+        }
+        return date;
+      };
+  
+      //Subscription Expiration
+      //January 1, 1970 UTC
+      let returnDate = getDateInDays(user.returnDate);
+      let currentDate = getDateInDays();
+      let subscriptionDate = getDateInDays(user.subscriptionDate);
+      let subscriptionExpiration = subscriptionType(subscriptionDate);
+  
+      const data = {
+        ...user,
+        subscriptionExpiration: subscriptionExpiration < currentDate,
+        daysLeftforExpiration:
+          subscriptionExpiration <= currentDate
+            ? 0
+            : subscriptionExpiration - currentDate,
+        fine:
+          returnDate < currentDate
+            ? subscriptionExpiration <= currentDate
+              ? 200
+              : 100
+            : 0,
+      };
+      
+    if(data.fine >0){
+      res.status(404).json({
+      success:false,
+      message:`User have Some Fine = ${data.fine}`,
+      suggestion:"You cannot delete this user",
+     });
+    }
+
+    else{
+      const index = users.indexOf(user);
+      users.splice(index,1);
+      res.status(202).json({
+        success:true,
+        data:users
+      });
+    }
+    
 });
 
  // Routes: /users/subscription-details/:id
@@ -179,5 +237,7 @@ res.status(200).json({
   data,
 });
 });
+
+
 
 module.exports = router;
